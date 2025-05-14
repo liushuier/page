@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学术进度条</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2E7D32',    // 农业绿
+                        secondary: '#FF9800',  // 活力橙
+                        neutral: '#F5F5F5',    // 浅灰背景
+                        dark: '#333333',       // 深色文本
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .progress-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+        }
+    </style>
+</head>
+<body class="bg-neutral min-h-screen p-4 md:p-6">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- 头部 -->
+        <div class="bg-primary text-white p-6 text-center">
+            <div class="flex justify-center items-center mb-2">
+                <i class="fa-solid fa-seedling text-secondary text-3xl mr-2"></i>
+                <h1 class="text-2xl font-bold">学术进度条</h1>
+            </div>
+            <p class="text-white/80 text-sm">输入关键词，生成专属于你的学术成长印记</p>
+        </div>
+        
+        <!-- 进度条生成器 -->
+        <div class="p-6">
+            <form id="progressForm" class="space-y-6">
+                <div>
+                    <label for="keyword" class="block text-gray-700 font-medium mb-2">选择关键词</label>
+                    <div class="relative">
+                        <select id="keyword" class="block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary appearance-none transition-all">
+                            <option value="" disabled selected>请选择关键词</option>
+                            <option value="实验">实验</option>
+                            <option value="论文">论文</option>
+                            <option value="组会">组会</option>
+                            <option value="文献">文献</option>
+                            <option value="考试">考试</option>
+                            <option value="实习">实习</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="progress" class="block text-gray-700 font-medium mb-2">进度百分比</label>
+                    <div class="relative">
+                        <input type="range" id="progress" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                        <span id="progressValue" class="absolute -top-8 right-0 bg-primary text-white text-xs px-2 py-1 rounded">50%</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="customText" class="block text-gray-700 font-medium mb-2">自定义描述 (可选)</label>
+                    <input type="text" id="customText" placeholder="例如：每一个数据点都是成长的足迹" class="block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa-solid fa-magic mr-2"></i> 生成进度条
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 生成结果 -->
+        <div id="resultSection" class="p-6 bg-neutral border-t border-gray-200 hidden">
+            <div id="progressCard" class="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 shadow-lg card-hover">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-seedling text-primary text-2xl mr-3"></i>
+                        <h4 id="progressTitle" class="text-xl font-bold text-dark">论文第3章</h4>
+                    </div>
+                    <span id="progressPercent" class="text-2xl font-bold text-primary">45%</span>
+                </div>
+                
+                <div class="h-6 bg-gray-200 rounded-full mb-4 overflow-hidden progress-shadow">
+                    <div id="progressBar" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style="width: 45%"></div>
+                </div>
+                
+                <p id="progressDesc" class="text-gray-600 italic">每一个数据点都是成长的足迹</p>
+                
+                <div class="mt-6 flex justify-center">
+                    <button id="shareBtn" class="bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 flex items-center">
+                        <i class="fa-solid fa-share-alt mr-2"></i> 分享到朋友圈
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模板示例 -->
+    <div class="max-w-md mx-auto mt-6 bg-white rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-bold text-primary mb-4">模板示例</h3>
+        <div class="space-y-4">
+            <div class="bg-neutral rounded-lg p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-dark">实验工作</h4>
+                    <span class="font-bold text-primary">70%</span>
+                </div>
+                <div class="h-3 bg-gray-200 rounded-full mb-2 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 70%"></div>
+                </div>
+                <p class="text-xs text-gray-600 italic">每一次失败都是成功的伏笔</p>
+            </div>
+            
+            <div class="bg-neutral rounded-lg p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-dark">文献学习</h4>
+                    <span class="font-bold text-primary">30%</span>
+                </div>
+                <div class="h-3 bg-gray-200 rounded-full mb-2 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 30%"></div>
+                </div>
+                <p class="text-xs text-gray-600 italic">在知识的海洋里慢慢遨游</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享模态框 -->
+    <div id="shareModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent">
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold text-primary">分享到朋友圈</h3>
+                <p class="text-gray-600">截图下方进度条，分享到朋友圈</p>
+            </div>
+            
+            <div class="bg-neutral rounded-xl p-4 mb-6">
+                <div id="shareCard" class="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 shadow-lg mb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-seedling text-primary text-2xl mr-3"></i>
+                            <h4 id="shareTitle" class="text-xl font-bold text-dark">论文第3章</h4>
+                        </div>
+                        <span id="sharePercent" class="text-2xl font-bold text-primary">45%</span>
+                    </div>
+                    
+                    <div class="h-6 bg-gray-200 rounded-full mb-4 overflow-hidden progress-shadow">
+                        <div id="shareBar" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 45%"></div>
+                    </div>
+                    
+                    <p id="shareDesc" class="text-gray-600 italic">每一个数据点都是成长的足迹</p>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">长按保存图片</p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button id="closeModal" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-all">
+                    取消
+                </button>
+                <button id="saveImage" class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fa-solid fa-download mr-2"></i> 保存图片
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 进度条值显示
+        const progressRange = document.getElementById('progress');
+        const progressValue = document.getElementById('progressValue');
+        progressRange.addEventListener('input', () => {
+            progressValue.textContent = `${progressRange.value}%`;
+            progressValue.style.left = `${progressRange.value}%`;
+            progressValue.style.transform = `translateX(-50%)`;
+        });
+
+        // 生成进度条
+        const progressForm = document.getElementById('progressForm');
+        const resultSection = document.getElementById('resultSection');
+        const progressTitle = document.getElementById('progressTitle');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressBar = document.getElementById('progressBar');
+        const progressDesc = document.getElementById('progressDesc');
+        
+        // 更积极的默认描述模板
+        const defaultDescriptions = {
+            '实验': [
+                '每一次失败都是成功的伏笔',
+                '数据虽小，却是科研的基石',
+                '耐心等待中，成果终将发芽',
+                '实验的每一步都是成长的印记',
+                '小数据，大梦想'
+            ],
+            '论文': [
+                '每一个字都是智慧的结晶',
+                '修改是成长的必经之路',
+                '导师的建议是进步的阶梯',
+                '在文献和思考中寻找突破',
+                '每一次修改都是向完美靠近'
+            ],
+            '组会': [
+                '分享是最好的学习方式',
+                '与同行交流，碰撞出火花',
+                '在讨论中开拓思路',
+                '每一次汇报都是自我提升的机会',
+                '准备充分，信心满满'
+            ],
+            '文献': [
+                '在知识的海洋里慢慢遨游',
+                '每篇文献都是一扇新的窗户',
+                '积累知识，厚积薄发',
+                '站在巨人的肩膀上前行',
+                '阅读文献，拓宽视野'
+            ],
+            '考试': [
+                '一分耕耘，一分收获',
+                '复习是对知识的梳理',
+                '从容面对，发挥最佳水平',
+                '考前复习，温故而知新',
+                '用知识武装自己'
+            ],
+            '实习': [
+                '在实践中积累宝贵经验',
+                '向同事学习，不断进步',
+                '每一项任务都是成长的机会',
+                '职场新人，努力学习中',
+                '脚踏实地，未来可期'
+            ]
+        };
+
+        progressForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const keyword = document.getElementById('keyword').value;
+            const progress = progressRange.value;
+            const customText = document.getElementById('customText').value;
+            
+            if (!keyword) {
+                alert('请选择关键词');
+                return;
+            }
+            
+            // 设置标题 - 使用更普适的表述
+            let title = '';
+            if (keyword === '实验') {
+                title = '实验工作';
+            } else if (keyword === '论文') {
+                title = '论文撰写';
+            } else if (keyword === '组会') {
+                title = '组会交流';
+            } else if (keyword === '文献') {
+                title = '文献学习';
+            } else if (keyword === '考试') {
+                title = '考试准备';
+            } else if (keyword === '实习') {
+                title = '实习任务';
+            }
+            
+            // 设置描述
+            let description = customText;
+            if (!description) {
+                const descriptions = defaultDescriptions[keyword];
+                description = descriptions[Math.floor(Math.random() * descriptions.length)];
+            }
+            
+            // 更新进度条
+            progressTitle.textContent = title;
+            progressPercent.textContent = `${progress}%`;
+            progressBar.style.width = `${progress}%`;
+            progressDesc.textContent = description;
+            
+            // 显示结果
+            resultSection.classList.remove('hidden');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // 更新分享卡片
+            document.getElementById('shareTitle').textContent = title;
+            document.getElementById('sharePercent').textContent = `${progress}%`;
+            document.getElementById('shareBar').style.width = `${progress}%`;
+            document.getElementById('shareDesc').textContent = description;
+        });
+
+        // 分享功能
+        const shareBtn = document.getElementById('shareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const saveImage = document.getElementById('saveImage');
+        const shareCard = document.getElementById('shareCard');
+
+        shareBtn.addEventListener('click', () => {
+            shareModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+
+        closeModal.addEventListener('click', () => {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                shareModal.classList.add('hidden');
+            }, 300);
+        });
+
+        // 点击模态框外部关闭
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                closeModal.click();
+            }
+        });
+
+        // 保存图片功能（使用html2canvas）
+        saveImage.addEventListener('click', () => {
+            if (!window.html2canvas) {
+                // 加载html2canvas库
+                const script = document.createElement('script');
+                script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+                script.onload = captureAndDownload;
+                document.body.appendChild(script);
+            } else {
+                captureAndDownload();
+            }
+        });
+
+        function captureAndDownload() {
+            html2canvas(shareCard, {
+                scale: 2,
+                backgroundColor: null,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '我的学术进度条.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // 显示下载成功提示
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all';
+                toast.textContent = '图片已保存到相册';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 500);
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+    
